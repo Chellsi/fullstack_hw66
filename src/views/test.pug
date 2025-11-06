@@ -1,0 +1,198 @@
+extends layout
+
+block content
+  .test-page
+    h1.page-title 🧪 Тестування функціональності
+    p.page-subtitle Інтерактивна перевірка всіх функцій проекту
+    
+    .test-section
+      h2 1. 🖼️ Favicon
+      .test-card
+        h3 Перевірка favicon
+        p Якщо ви бачите іконку у вкладці браузера - favicon працює! ✅
+        .test-actions
+          a.btn.btn-secondary(href='/favicon.ico', target='_blank') Відкрити favicon.ico
+          button#checkFavicon.btn.btn-primary Перевірити favicon
+        #faviconResult.test-result
+    
+    .test-section
+      h2 2. 🔐 JWT Авторизація
+      .test-card
+        h3 Перевірка токена
+        if user
+          p ✅ Ви авторизовані як: <strong>#{user.username}</strong>
+          p Роль: <strong>#{user.role}</strong>
+          .test-actions
+            button#checkToken.btn.btn-primary Перевірити токен
+            button#logout.btn.btn-danger Вийти
+        else
+          p ❌ Ви не авторизовані
+          .test-actions
+            a.btn.btn-primary(href='/auth/login') Увійти
+        #tokenResult.test-result
+    
+    .test-section
+      h2 3. 🍪 Cookies
+      .test-card
+        h3 Перевірка cookies
+        p Поточна тема: <strong>#{theme}</strong>
+        .test-actions
+          button#checkCookies.btn.btn-primary Показати всі cookies
+        #cookiesResult.test-result
+    
+    .test-section
+      h2 4. 🎨 Теми оформлення
+      .test-card
+        h3 Зміна теми
+        p Спробуйте перемкнути теми та перезавантажте сторінку - вибір збережеться!
+        .test-actions
+          button#setLight.btn.btn-theme(class=theme === 'light' ? 'active' : '') ☀️ Світла
+          button#setDark.btn.btn-theme(class=theme === 'dark' ? 'active' : '') 🌙 Темна
+        #themeResult.test-result
+    
+    .test-section
+      h2 5. 📡 API Endpoints
+      .test-card
+        h3 Тестування API
+        .test-actions
+          button#testUsers.btn.btn-primary Тест GET /users
+          button#testArticles.btn.btn-primary Тест GET /articles
+          button#testTheme.btn.btn-primary Тест GET /api/theme/current
+        #apiResult.test-result
+    
+    .test-section
+      h2 6. 🎭 Шаблонізатори
+      .test-card
+        h3 PUG та EJS
+        p <strong>PUG:</strong> Користувачі, Auth сторінки
+        p <strong>EJS:</strong> Статті
+        .test-actions
+          a.btn.btn-primary(href='/users/page') PUG: Користувачі
+          a.btn.btn-primary(href='/articles/page') EJS: Статті
+    
+    .test-section
+      h2 ✅ Чеклист
+      .test-card
+        ul.checklist
+          li
+            input(type='checkbox', id='check1')
+            label(for='check1') Favicon відображається у вкладці
+          li
+            input(type='checkbox', id='check2')
+            label(for='check2') JWT авторизація працює
+          li
+            input(type='checkbox', id='check3')
+            label(for='check3') Cookies зберігаються
+          li
+            input(type='checkbox', id='check4')
+            label(for='check4') Теми перемикаються
+          li
+            input(type='checkbox', id='check5')
+            label(for='check5') API endpoints працюють
+          li
+            input(type='checkbox', id='check6')
+            label(for='check6') PUG шаблони рендеряться
+          li
+            input(type='checkbox', id='check7')
+            label(for='check7') EJS шаблони рендеряться
+  
+  script.
+    // Перевірка favicon
+    document.getElementById('checkFavicon').addEventListener('click', async () => {
+      const result = document.getElementById('faviconResult');
+      try {
+        const response = await fetch('/favicon.ico');
+        if (response.ok) {
+          result.innerHTML = '<p class="success">✅ Favicon доступний (200 OK)</p>';
+        } else {
+          result.innerHTML = '<p class="error">❌ Favicon не знайдено (' + response.status + ')</p>';
+        }
+      } catch (error) {
+        result.innerHTML = '<p class="error">❌ Помилка: ' + error.message + '</p>';
+      }
+    });
+    
+    // Перевірка токена
+    if (document.getElementById('checkToken')) {
+      document.getElementById('checkToken').addEventListener('click', async () => {
+        const result = document.getElementById('tokenResult');
+        try {
+          const response = await fetch('/auth/me');
+          const data = await response.json();
+          if (data.success) {
+            result.innerHTML = `<p class="success">✅ Токен валідний<br>User: ${data.user.username}<br>Role: ${data.user.role}</p>`;
+          } else {
+            result.innerHTML = '<p class="error">❌ ' + data.message + '</p>';
+          }
+        } catch (error) {
+          result.innerHTML = '<p class="error">❌ Помилка: ' + error.message + '</p>';
+        }
+      });
+    }
+    
+    // Вихід
+    if (document.getElementById('logout')) {
+      document.getElementById('logout').addEventListener('click', async () => {
+        await fetch('/auth/logout', { method: 'POST' });
+        window.location.reload();
+      });
+    }
+    
+    // Перевірка cookies
+    document.getElementById('checkCookies').addEventListener('click', () => {
+      const result = document.getElementById('cookiesResult');
+      const cookies = document.cookie.split(';').map(c => c.trim()).filter(c => c);
+      if (cookies.length > 0) {
+        const cookieList = cookies.map(c => {
+          const [name, value] = c.split('=');
+          return `<li><strong>${name}:</strong> ${value}</li>`;
+        }).join('');
+        result.innerHTML = `<p class="success">✅ Знайдено cookies:</p><ul>${cookieList}</ul>`;
+      } else {
+        result.innerHTML = '<p class="warning">⚠️ Cookies не знайдено (httpOnly cookies не видні для JS)</p>';
+      }
+    });
+    
+    // Зміна теми
+    document.getElementById('setLight').addEventListener('click', () => setTheme('light'));
+    document.getElementById('setDark').addEventListener('click', () => setTheme('dark'));
+    
+    async function setTheme(theme) {
+      try {
+        const response = await fetch('/api/theme/set', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme })
+        });
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('themeResult').innerHTML = 
+            `<p class="success">✅ Тему змінено на "${theme}". Перезавантажте сторінку.</p>`;
+          document.body.className = theme + '-theme';
+          
+          // Оновити активну кнопку
+          document.querySelectorAll('.btn-theme').forEach(btn => btn.classList.remove('active'));
+          document.getElementById('set' + theme.charAt(0).toUpperCase() + theme.slice(1)).classList.add('active');
+        }
+      } catch (error) {
+        document.getElementById('themeResult').innerHTML = 
+          '<p class="error">❌ Помилка: ' + error.message + '</p>';
+      }
+    }
+    
+    // Тест API
+    document.getElementById('testUsers').addEventListener('click', () => testAPI('/users'));
+    document.getElementById('testArticles').addEventListener('click', () => testAPI('/articles'));
+    document.getElementById('testTheme').addEventListener('click', () => testAPI('/api/theme/current'));
+    
+    async function testAPI(endpoint) {
+      const result = document.getElementById('apiResult');
+      try {
+        const response = await fetch(endpoint, {
+          headers: { 'Authorization': 'Bearer test-token' }
+        });
+        result.innerHTML = `<p class="success">✅ ${endpoint}: ${response.status} ${response.statusText}</p>`;
+      } catch (error) {
+        result.innerHTML = `<p class="error">❌ ${endpoint}: ${error.message}</p>`;
+      }
+    }

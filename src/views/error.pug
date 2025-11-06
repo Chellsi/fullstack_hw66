@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  .error-page
+    .error-icon 😔
+    h1.error-title= error.status || 500
+    h2.error-message= message
+    p.error-description Вибачте, сталася помилка. Спробуйте повернутися на головну сторінку.
+    a.btn.btn-primary(href='/') Повернутися на головну

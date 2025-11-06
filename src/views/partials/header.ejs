@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <% if (typeof faviconPath !== 'undefined') { %>
+    <link rel="icon" href="<%= faviconPath %>" type="image/x-icon">
+    <link rel="shortcut icon" href="<%= faviconPath %>" type="image/x-icon">
+  <% } else { %>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <% } %>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="<%= theme %>-theme">
+  <header class="header">
+    <nav class="nav">
+      <div class="container">
+        <div class="nav-brand">
+          <a href="/">Express API</a>
+        </div>
+        <div class="nav-links">
+          <a href="/users/page">Користувачі</a>
+          <a href="/articles/page">Статті</a>
+          <% const authDisplayName = user && (user.username || user.name || user.email); %>
+          <% if (authDisplayName) { %>
+            <% const authInitial = authDisplayName.charAt(0).toUpperCase(); %>
+            <a href="/auth/profile">
+              <% if (authInitial) { %>
+                <span class="user-avatar-small"><%= authInitial %></span>
+              <% } %>
+              <%= authDisplayName %>
+            </a>
+          <% } else { %>
+            <a href="/auth/login">Вхід</a>
+            <a class="btn btn-small btn-primary" href="/auth/register">Реєстрація</a>
+          <% } %>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main class="main">
+    <div class="container">

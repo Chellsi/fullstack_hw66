@@ -1,0 +1,79 @@
+extends ../layout
+
+block content
+  .auth-container
+    .auth-card
+      .auth-header
+        h1.auth-title Реєстрація
+        p.auth-subtitle Створіть новий обліковий запис
+      
+      form#registerForm.auth-form
+        .form-group
+          label(for='username') Ім'я користувача
+          input#username.form-control(type='text', name='username', required, placeholder='Введіть ім\'я користувача')
+        
+        .form-group
+          label(for='email') Email
+          input#email.form-control(type='email', name='email', required, placeholder='your@email.com')
+        
+        .form-group
+          label(for='password') Пароль
+          input#password.form-control(type='password', name='password', required, placeholder='Мінімум 6 символів')
+        
+        .form-group
+          label(for='confirmPassword') Підтвердіть пароль
+          input#confirmPassword.form-control(type='password', name='confirmPassword', required, placeholder='Повторіть пароль')
+        
+        #errorMessage.alert.alert-danger(style='display: none;')
+        
+        button.btn.btn-primary.btn-block(type='submit') Зареєструватися
+      
+      .auth-footer
+        p Вже маєте обліковий запис? 
+          a(href='/auth/login') Увійти
+  
+  script.
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const errorMessage = document.getElementById('errorMessage');
+      
+      // Валідація
+      if (password !== confirmPassword) {
+        errorMessage.textContent = 'Паролі не співпадають';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      if (password.length < 6) {
+        errorMessage.textContent = 'Пароль має містити мінімум 6 символів';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      try {
+        const response = await fetch('/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          window.location.href = '/auth/profile';
+        } else {
+          errorMessage.textContent = data.message;
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        errorMessage.textContent = 'Помилка з\'єднання з сервером';
+        errorMessage.style.display = 'block';
+      }
+    });

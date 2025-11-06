@@ -1,0 +1,6 @@
+{
+  "name": "passport-local",
+  "version": "0.0.0-custom",
+  "type": "module",
+  "main": "index.js"
+}

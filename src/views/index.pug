@@ -1,0 +1,29 @@
+extends layout
+
+block content
+  .hero
+    h1.hero-title Ласкаво просимо до Express API
+    p.hero-subtitle Сучасний RESTful API з підтримкою шаблонізаторів PUG та EJS, JWT авторизацією та темами оформлення
+    
+  .features
+    .feature-card
+      .feature-icon 👥
+      h3 Користувачі
+      p Керуйте користувачами за допомогою шаблонізатора PUG
+      a.btn.btn-primary(href='/users/page') Переглянути користувачів
+    
+    .feature-card
+      .feature-icon 📝
+      h3 Статті
+      p Керуйте статтями за допомогою шаблонізатора EJS
+      a.btn.btn-primary(href='/articles/page') Переглянути статті
+    
+    .feature-card
+      .feature-icon 🔒
+      h3 Авторизація
+      if user
+        p Ви увійшли як #{user.username}
+        a.btn.btn-primary(href='/auth/profile') Мій профіль
+      else
+        p JWT токени та безпечні cookies
+        a.btn.btn-secondary(href='/auth/login') Увійти

@@ -1,0 +1,19 @@
+extends ../layout
+
+block content
+  h1 Дашборд MongoDB Atlas
+  p.lead Цей розділ відображає документи з колекції #{collectionName} вашої бази даних MongoDB Atlas.
+
+  if error
+    .alert.alert-error
+      strong Помилка:
+      |  #{error}
+  else if documents && documents.length
+    .document-list
+      each document, index in documents
+        details.document
+          summary Документ #{index + 1}
+          pre
+            code= JSON.stringify(document, null, 2)
+  else
+    p Немає документів для відображення. Додайте дані до колекції #{collectionName}.

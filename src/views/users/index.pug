@@ -1,0 +1,22 @@
+extends ../layout
+
+block content
+  .page-header
+    h1.page-title= title
+    p.page-subtitle Переглядайте та керуйте користувачами системи
+  
+  .users-grid
+    each user in users
+      .user-card
+        .user-avatar
+          span.avatar-text= user.name.charAt(0)
+        .user-info
+          h3.user-name= user.name
+          p.user-email= user.email
+          span.user-badge(class=user.role === 'admin' ? 'badge-admin' : 'badge-user')= user.role
+        .user-actions
+          a.btn.btn-small.btn-primary(href=`/users/page/${user.id}`) Детальніше
+  
+  if users.length === 0
+    .empty-state
+      p Користувачів не знайдено

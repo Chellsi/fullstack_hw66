@@ -1,0 +1,41 @@
+doctype html
+html(lang='uk')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title= title
+    if faviconPath
+      link(rel='icon', href=faviconPath, type='image/x-icon')
+      link(rel='shortcut icon', href=faviconPath, type='image/x-icon')
+    else
+      link(rel='icon', href='/favicon.ico', type='image/x-icon')
+      link(rel='shortcut icon', href='/favicon.ico', type='image/x-icon')
+    link(rel='stylesheet', href='/css/style.css')
+  body(class=theme + '-theme')
+    header.header
+      nav.nav
+        .container
+          .nav-brand
+            a(href='/') Express API
+          .nav-links
+            a(href='/users/page') Користувачі
+            a(href='/articles/page') Статті
+            a(href='/atlas/data') MongoDB Atlas
+            - const authDisplayName = user && (user.username || user.name || user.email)
+            if authDisplayName
+              - const authInitial = authDisplayName.charAt(0).toUpperCase()
+              a(href='/auth/profile')
+                if authInitial
+                  span.user-avatar-small= authInitial
+                | #{authDisplayName}
+            else
+              a(href='/auth/login') Вхід
+              a.btn.btn-small.btn-primary(href='/auth/register') Реєстрація
+    
+    main.main
+      .container
+        block content
+    
+    footer.footer
+      .container
+        p &copy; 2025 Express API. Всі права захищені.

@@ -1,0 +1,71 @@
+extends ../layout
+
+block content
+  .auth-container
+    .auth-card
+      .auth-header
+        h1.auth-title Вхід
+        p.auth-subtitle Увійдіть до свого облікового запису
+      
+      .demo-credentials
+        p.demo-title 🔑 Тестові облікові записи:
+        p
+          strong Admin:
+          | email:
+          code admin@example.com
+          |, пароль:
+          code admin123
+        p
+          strong User:
+          | email:
+          code user@example.com
+          |, пароль:
+          code user123
+      
+      form#loginForm.auth-form
+        .form-group
+          label(for='email') Email
+          input#email.form-control(type='email', name='email', required, placeholder='Введіть email')
+        
+        .form-group
+          label(for='password') Пароль
+          input#password.form-control(type='password', name='password', required, placeholder='Введіть пароль')
+        
+        #errorMessage.alert.alert-danger(style='display: none;')
+        
+        button.btn.btn-primary.btn-block(type='submit') Увійти
+      
+      .auth-footer
+        p Немає облікового запису? 
+          a(href='/auth/register') Зареєструватися
+  
+  script.
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+      
+      try {
+        const response = await fetch('/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          window.location.href = '/auth/profile';
+        } else {
+          errorMessage.textContent = data.message;
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        errorMessage.textContent = 'Помилка з\'єднання з сервером';
+        errorMessage.style.display = 'block';
+      }
+    });

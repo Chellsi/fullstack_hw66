@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+
+<div class="breadcrumb">
+  <a href="/">Головна</a>
+  <span class="separator">/</span>
+  <a href="/articles/page">Статті</a>
+  <span class="separator">/</span>
+  <span class="current"><%= article.title %></span>
+</div>
+
+<article class="article-detail">
+  <header class="article-detail-header">
+    <h1 class="article-detail-title"><%= article.title %></h1>
+    <div class="article-detail-meta">
+      <span class="meta-item">
+        <strong>Автор:</strong> <%= article.author %>
+      </span>
+      <span class="meta-item">
+        <strong>Дата публікації:</strong> <%= article.date %>
+      </span>
+      <span class="meta-item">
+        <strong>Перегляди:</strong> <%= article.views %>
+      </span>
+    </div>
+  </header>
+  
+  <div class="article-detail-body">
+    <div class="article-content">
+      <p><%= article.content %></p>
+      
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+      
+      <h2>Основні переваги</h2>
+      <ul>
+        <li>Висока продуктивність</li>
+        <li>Гнучкість та масштабованість</li>
+        <li>Велика спільнота розробників</li>
+        <li>Багатий екосистема пакетів</li>
+      </ul>
+      
+      <h2>Висновок</h2>
+      <p>Використання сучасних технологій дозволяє створювати якісні та швидкі веб-додатки.</p>
+    </div>
+  </div>
+  
+  <footer class="article-detail-footer">
+    <a href="/articles/page" class="btn btn-secondary">← Назад до списку</a>
+    <div class="article-actions">
+      <button class="btn btn-primary">Редагувати</button>
+      <button class="btn btn-danger">Видалити</button>
+    </div>
+  </footer>
+</article>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,6 @@
+{
+  "name": "passport",
+  "version": "0.0.0-custom",
+  "type": "module",
+  "main": "lib/index.js"
+}

@@ -1,0 +1,39 @@
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <h1 class="page-title"><%= title %></h1>
+  <p class="page-subtitle">Переглядайте останні статті та публікації</p>
+</div>
+
+<div class="articles-list">
+  <% articles.forEach(function(article) { %>
+    <article class="article-card">
+      <div class="article-header">
+        <h2 class="article-title">
+          <a href="/articles/page/<%= article.id %>"><%= article.title %></a>
+        </h2>
+        <div class="article-meta">
+          <span class="article-author">👤 <%= article.author %></span>
+          <span class="article-date">📅 <%= article.date %></span>
+          <span class="article-views">👁️ <%= article.views %> переглядів</span>
+        </div>
+      </div>
+      <div class="article-excerpt">
+        <p><%= article.content.substring(0, 150) %>...</p>
+      </div>
+      <div class="article-footer">
+        <a href="/articles/page/<%= article.id %>" class="btn btn-small btn-primary">
+          Читати далі →
+        </a>
+      </div>
+    </article>
+  <% }); %>
+  
+  <% if (articles.length === 0) { %>
+    <div class="empty-state">
+      <p>Статей не знайдено</p>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
