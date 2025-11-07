@@ -18,7 +18,7 @@
 - 👤 **Захищені маршрути** (`/auth/profile`, `/protected`)
 - 📝 **Pug та EJS шаблонізатори** для сторінок та контенту
 - 🧩 **Middleware**: логування запитів, перевірка доступу, валідація даних
-- 📦 **Інтеграція з MongoDB Atlas** для читання документів із колекцій
+- 📦 **Інтеграція з MongoDB Atlas** із маршрутом для перегляду та повноцінним REST API
 - 🎨 **Світла/темна тема** через cookies
 
 ## 🛠️ Технології
@@ -74,6 +74,8 @@
 
 > Якщо змінні Atlas не задані, сервер продовжить роботу у демо-режимі без підключення до бази даних. При переході на `/atlas/data` буде відображене попередження.
 
+Після встановлення підключення сервер автоматично використовує колекцію, вказану в `MONGODB_COLLECTION`. Якщо змінна містить назву в форматі `dbName.collectionName`, буде використано відповідну базу. В іншому випадку працюємо всередині `MONGODB_DB_NAME`.
+
 ## 🔐 Авторизація та сесії
 ### Налаштування Passport
 - Локальна стратегія використовує **email** та **пароль**.
@@ -107,6 +109,166 @@
 | GET   | `/protected`    | Демонстраційний захищений маршрут     |
 | GET   | `/test`         | Сторінка для тестування UI            |
 | GET   | `/atlas/data`   | Дані з MongoDB Atlas (Pug-сторінка)   |
+
+### MongoDB Atlas REST API
+| Метод | Шлях                               | Опис |
+|-------|------------------------------------|------|
+| GET   | `/atlas/api/documents`             | Читання документів з опційним фільтром, проекцією та лімітом |
+| POST  | `/atlas/api/documents`             | Додавання одного документа через `insertOne` |
+| POST  | `/atlas/api/documents/bulk`        | Масове додавання документів через `insertMany` |
+| PATCH | `/atlas/api/documents/update-one`  | Оновлення одного документа через `updateOne` |
+| PATCH | `/atlas/api/documents/update-many` | Оновлення багатьох документів через `updateMany` |
+| PUT   | `/atlas/api/documents/replace-one` | Повна заміна документа через `replaceOne` |
+| DELETE| `/atlas/api/documents/delete-one`  | Видалення одного документа через `deleteOne` |
+| DELETE| `/atlas/api/documents/delete-many` | Масове видалення через `deleteMany` |
+
+## 🧮 MongoDB Atlas CRUD API
+Кожен маршрут взаємодіє з колекцією, визначеною в `MONGODB_COLLECTION`. Якщо змінної немає, використовується `samples` у базі `MONGODB_DB_NAME`. Нижче наведено приклади запитів за допомогою `curl` (використовуйте свій URI і дані):
+
+### 🔍 Читання з проекцією
+```bash
+curl "http://localhost:3000/atlas/api/documents?filter={\"status\":\"active\"}&projection={\"name\":1,\"status\":1,\"_id\":0}&limit=10"
+```
+**Відповідь:**
+```json
+{
+  "count": 2,
+  "documents": [
+    { "name": "Project A", "status": "active" },
+    { "name": "Project B", "status": "active" }
+  ]
+}
+```
+
+### ➕ Додавання одного документа (`insertOne`)
+```bash
+curl -X POST http://localhost:3000/atlas/api/documents \
+  -H "Content-Type: application/json" \
+  -d '{
+    "document": {"name": "Project C", "status": "draft"}
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "insertedId": "665d0d6e43c8d90b4fc8412a"
+}
+```
+
+### ➕ Масове додавання (`insertMany`)
+```bash
+curl -X POST http://localhost:3000/atlas/api/documents/bulk \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documents": [
+      {"name": "Project D", "status": "active"},
+      {"name": "Project E", "status": "archived"}
+    ]
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "insertedCount": 2,
+  "insertedIds": {
+    "0": "665d0de643c8d90b4fc8412b",
+    "1": "665d0de643c8d90b4fc8412c"
+  }
+}
+```
+
+### ♻️ Оновлення одного документа (`updateOne`)
+```bash
+curl -X PATCH http://localhost:3000/atlas/api/documents/update-one \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filter": {"name": "Project C"},
+    "update": {"$set": {"status": "active"}}
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "matchedCount": 1,
+  "modifiedCount": 1,
+  "upsertedId": null
+}
+```
+
+### ♻️ Масове оновлення (`updateMany`)
+```bash
+curl -X PATCH http://localhost:3000/atlas/api/documents/update-many \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filter": {"status": "active"},
+    "update": {"$set": {"updatedAt": "2024-05-01T00:00:00.000Z"}}
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "matchedCount": 3,
+  "modifiedCount": 3,
+  "upsertedId": null
+}
+```
+
+### 🔁 Заміна документа (`replaceOne`)
+```bash
+curl -X PUT http://localhost:3000/atlas/api/documents/replace-one \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filter": {"name": "Project D"},
+    "replacement": {"name": "Project D", "status": "archived"}
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "matchedCount": 1,
+  "modifiedCount": 1,
+  "upsertedId": null
+}
+```
+
+### 🗑️ Видалення одного документа (`deleteOne`)
+```bash
+curl -X DELETE http://localhost:3000/atlas/api/documents/delete-one \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filter": {"name": "Project E"}
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "deletedCount": 1
+}
+```
+
+### 🗑️ Масове видалення (`deleteMany`)
+```bash
+curl -X DELETE http://localhost:3000/atlas/api/documents/delete-many \
+  -H "Content-Type: application/json" \
+  -d '{
+    "filter": {"status": "archived"}
+  }'
+```
+**Відповідь:**
+```json
+{
+  "acknowledged": true,
+  "deletedCount": 2
+}
+```
+
+> 💡 У прикладах використовуються рядки JSON із екрануванням лапок. Для більш зручної роботи можна застосовувати Postman або інші клієнти, що автоматично формують запит.
 
 ### REST API (фрагмент)
 | Метод | Шлях             | Опис                                        |
